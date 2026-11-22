@@ -1,0 +1,479 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Tecnologías Digitales: entregables</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Literata:opsz,wght@7..72,500;7..72,700&family=IBM+Plex+Sans:ital,wght@0,400;0,600;1,400&display=swap">
+<style>
+/* VOICE: académico y cálido; un portafolio de equipo que se recorre en un video.
+   IDEA: el curso como una red: cada ejercicio es un nodo enlazado con los demás.
+   PICTURE: grafo SVG de los ocho ejercicios en la portada; cada nodo lleva a su sección.
+   COLOUR and TYPE: tinta índigo dominante, lavanda de apoyo, coral como acento; Literata + IBM Plex Sans.
+   LAYOUT: banda de portada, menú fijo, una sección por ejercicio (texto + visor del entregable + mejoras), cierre. */
+:root{color-scheme:light dark;
+--bg:light-dark(#ffffff,#121127);--ink:light-dark(#1b1a2e,#e9e8f7);--soft:light-dark(#55546e,#b4b3cf);
+--ind:light-dark(#23205e,#1c1a4a);--lav:light-dark(#efeefc,#1d1c3a);--line:light-dark(#dcdaf3,#34325e);
+--coral:light-dark(#e2452f,#ff7a63);--card:light-dark(#ffffff,#18173a)}
+:root[data-theme=light]{color-scheme:light}:root[data-theme=dark]{color-scheme:dark}
+*{box-sizing:border-box;min-width:0}
+html{scroll-behavior:smooth;scroll-padding-top:72px}
+body{margin:0;background:var(--bg);color:var(--ink);font:16.5px/1.6 "IBM Plex Sans",system-ui,sans-serif;overflow-x:clip}
+h1,h2,h3{font-family:Literata,Georgia,serif;line-height:1.1;text-wrap:balance;margin:0}
+h2{font-size:clamp(28px,3.6vw,40px)}h3{font-size:20px;margin:0 0 8px}
+p{margin:0 0 12px}a{color:inherit}
+.band{padding:clamp(28px,4vw,64px) max(5vw,16px)}
+.wrap{max-width:1240px;margin:0 auto}
+pre,.scroll{overflow-x:auto}
+/* portada */
+.hero{background:var(--ind);color:#fff}
+.hero .wrap{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.1fr);gap:clamp(20px,4vw,56px);align-items:center}
+.hero h1{font-size:clamp(34px,5vw,52px);margin:10px 0 16px}
+.hero .sub{font-size:18px;color:#d9d7ff;max-width:34em}
+.hero .curso{font-size:14px;color:#bfbcf2;margin-top:22px;border-top:1px solid #ffffff2e;padding-top:14px}
+.red{position:relative;aspect-ratio:10/8;width:100%}
+.red svg{position:absolute;inset:0;width:100%;height:100%;overflow:visible}
+.red .e{stroke:#ffffff38;stroke-width:1.6}
+.red a circle{fill:#fff;transition:fill .2s}.red a circle.halo{fill:#ffffff14}
+.red a:hover circle:not(.halo),.red a:focus circle:not(.halo){fill:var(--coral)}
+.red a text{fill:#fff;font:600 15px "IBM Plex Sans",sans-serif}
+.red a text.n{fill:var(--ind);font:700 15px Literata,serif;text-anchor:middle;dominant-baseline:central;pointer-events:none}
+.red a:focus{outline:none}
+/* menú */
+nav.menu{position:sticky;top:0;z-index:20;background:color-mix(in srgb,var(--bg) 92%,transparent);backdrop-filter:blur(8px);border-bottom:1px solid var(--line)}
+nav.menu .scroll{display:flex;gap:4px;max-width:1240px;margin:0 auto;padding:8px max(5vw,16px);white-space:nowrap}
+nav.menu a{flex:none;text-decoration:none;font-size:14px;padding:10px 12px;border-radius:999px;color:var(--soft)}
+nav.menu a:hover,nav.menu a.on{background:var(--lav);color:var(--ink)}
+/* intro */
+.intro .wrap{display:grid;grid-template-columns:minmax(0,1.3fr) minmax(0,1fr);gap:40px}
+.equipo{background:var(--lav);border-radius:14px;padding:22px 24px}
+.equipo ul{list-style:none;margin:0;padding:0}.equipo li{padding:7px 0;border-bottom:1px solid var(--line)}.equipo li:last-child{border:0}
+.lee{font-size:18px}
+/* ejercicios */
+.ej{border-top:1px solid var(--line)}
+.ej:nth-of-type(even){background:var(--lav)}
+.kick{color:var(--coral);font-weight:600;font-size:15px;margin-bottom:8px}
+.meta{color:var(--soft);font-size:15px;margin:10px 0 0}
+.chips{display:flex;flex-wrap:wrap;gap:6px;margin-top:12px}
+.chips span{font-size:13px;padding:3px 10px;border-radius:999px;border:1px solid var(--line);background:var(--card)}
+.grid{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.25fr);gap:clamp(20px,3vw,44px);margin-top:28px;align-items:start}
+.texto h3{margin-top:4px}.texto h3+p{margin-top:0}.texto p+h3{margin-top:22px}
+.visor{background:var(--card);border:1px solid var(--line);border-radius:14px;overflow:hidden;display:flex;flex-direction:column}
+.visor .barra{display:flex;flex-wrap:wrap;gap:6px 14px;align-items:center;justify-content:space-between;padding:8px 12px 8px 16px;font-size:14px;border-bottom:1px solid var(--line)}
+.visor .barra b{font-weight:600}
+.visor iframe{display:block;width:100%;height:600px;border:0;background:#fff}
+.btn{font:inherit;font-size:14px;min-height:40px;padding:6px 14px;border-radius:999px;border:1px solid var(--line);background:var(--lav);color:var(--ink);cursor:pointer;text-decoration:none;display:inline-flex;align-items:center}
+.btn:hover{border-color:var(--coral)}.btn:focus-visible,nav a:focus-visible{outline:2px solid var(--coral);outline-offset:2px}
+.visor.max{position:fixed;inset:12px;z-index:50;box-shadow:0 10px 60px #0008}
+.visor.max iframe{height:auto;flex:1}
+body.ver::after{content:"";position:fixed;inset:0;background:#0009;z-index:40}
+.mejoras{margin-top:30px}
+.mejoras ol{margin:0;padding:0;list-style:none;display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,330px),1fr));gap:12px;counter-reset:m}
+.mejoras li{counter-increment:m;background:var(--card);border:1px solid var(--line);border-radius:12px;padding:14px 16px 14px 52px;position:relative;font-size:15.5px}
+.mejoras li::before{content:counter(m);position:absolute;left:14px;top:13px;width:26px;height:26px;border-radius:50%;background:var(--ind);color:#fff;font:700 14px/26px Literata,serif;text-align:center}
+:root[data-theme=dark] .mejoras li::before{background:var(--coral);color:#121127}
+@media (prefers-color-scheme:dark){:root:not([data-theme=light]) .mejoras li::before{background:var(--coral);color:#121127}}
+.extra{margin-top:18px;background:var(--card);border:1px solid var(--line);border-radius:12px;padding:16px 18px}
+table{border-collapse:collapse;width:100%;font-size:15px}th,td{text-align:left;padding:7px 8px;border-bottom:1px solid var(--line)}td.n,th.n{text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap}
+.nota{font-size:13.5px;color:var(--soft);margin:8px 0 0}
+.ext{border:1px dashed var(--line);border-radius:12px;padding:16px;margin-top:16px;background:var(--card)}
+.ext iframe{width:100%;aspect-ratio:16/9;border:0;border-radius:8px;display:block;margin-top:10px}
+.ext.app iframe{aspect-ratio:auto;height:640px}
+.ext p{margin:0}
+.tope{display:flex;flex-wrap:wrap;gap:8px 16px;align-items:center;justify-content:space-between;margin-bottom:8px}.tope .kick{margin:0}
+.cierre .tope .btn{background:#ffffff1a;color:#fff;border-color:#ffffff40}
+/* cierre */
+.cierre{background:var(--ind);color:#fff}
+.cierre .wrap{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:clamp(24px,4vw,56px)}
+.cierre h2{color:#fff;margin-bottom:16px}.cierre p{color:#e4e2ff}
+.cierre .preg{font-family:Literata,serif;font-size:clamp(22px,2.6vw,30px);line-height:1.25;color:#fff;border-left:3px solid var(--coral);padding-left:18px;margin:6px 0 20px}
+footer{font-size:14px;color:var(--soft)}footer .wrap{display:flex;flex-wrap:wrap;gap:8px 30px;justify-content:space-between}
+.solo-web{display:none}html.web .solo-web{display:revert}
+@media(max-width:900px){.hero .wrap,.intro .wrap,.grid,.cierre .wrap{grid-template-columns:minmax(0,1fr)}.visor iframe{height:520px}.ext.app iframe{height:560px}}
+@media(max-width:600px){table{font-size:13px}.red a text{font-size:17px}.visor iframe{height:460px}.mejoras li{padding-left:48px}}
+@media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}.red a circle{transition:none}}
+</style>
+</head>
+<body>
+
+<header class="hero band" id="inicio">
+ <div class="wrap">
+  <div>
+   <p class="kick" style="color:#ffb3a6">Maestría en Humanidades Digitales · Proyecto final</p>
+   <h1>Ocho ejercicios, una misma pregunta: ¿qué podemos afirmar con los datos?</h1>
+   <p class="sub">Reunimos los entregables del curso, los revisamos en equipo e identificamos cómo mejorarlos. Cada sección muestra el trabajo original, una lista de mejoras posibles y nuestra reflexión.</p>
+   <p class="curso">EH4004.10 Tecnologías Digitales · Dr. Manuel Cebral Loureda<br>Escuela de Humanidades y Educación · Tecnológico de Monterrey · noviembre de 2026</p>
+  </div>
+  <div class="red" aria-label="Mapa del curso: ocho ejercicios conectados">
+   <svg viewBox="0 0 500 400" role="img" aria-labelledby="redt"><title id="redt">Los ocho ejercicios del curso como una red</title>
+    <g id="aristas"></g><g id="nodos"></g>
+   </svg>
+  </div>
+ </div>
+</header>
+
+<nav class="menu" aria-label="Secciones"><div class="scroll">
+ <a href="#inicio">Inicio</a><a href="#ej1">1 · dplyr</a><a href="#ej2">2 · Descarga de datos</a><a href="#ej3">3 · Voyant Tools</a><a href="#ej4">4 · Google Ngram</a><a href="#ej5">5 · Sentiment analysis</a><a href="#ej6">6 · Red relacional</a><a href="#ej7">7 · Gephi</a><a href="#ej8">8 · shinyApps</a><a href="#reflexion">Reflexión final</a>
+</div></nav>
+
+<section class="intro band">
+ <div class="wrap">
+  <div>
+   <h2 style="margin-bottom:16px">Cómo trabajamos</h2>
+   <p class="lee">Cada integrante compartió sus entregables. Los comparamos, elegimos el más completo de cada ejercicio como base y discutimos qué enfoques de otros compañeros podían fortalecerlo.</p>
+   <p>Esta vez no rehicimos los ejercicios. Dejamos registradas las mejoras que encontramos para que sirvan de guía en futuras versiones. Los entregables se muestran tal como se presentaron en el curso. Puedes recorrerlos dentro de cada visor o ampliarlos a pantalla completa.</p>
+   <p>Más que hacer un catálogo de herramientas, buscamos mostrar cómo sus posibilidades y sus límites cambiaron nuestra manera de formular preguntas y de interpretar materiales digitales.</p>
+  </div>
+  <aside class="equipo" aria-label="Integrantes">
+   <h3>Integrantes</h3>
+   <ul>
+    <li>Christian Alcalá Rosas · A01840623</li>
+    <li>Karla Ivette Escudero Beltrán · A01167430</li>
+    <li>Francisco Roberto González Gutiérrez · A01797880</li>
+    <li>Eugenia Rodríguez Rodríguez</li>
+    <li>Arsenio Salmones Herrera · A01026157</li>
+   </ul>
+  </aside>
+ </div>
+</section>
+
+<!-- ============ EJERCICIO 1 ============ -->
+<section class="ej band" id="ej1"><div class="wrap">
+ <div class="tope"><p class="kick">Ejercicio 1</p><a class="btn" href="#inicio">↑ Volver al inicio</a></div>
+ <h2>Ejercicios con la librería dplyr</h2>
+ <p class="meta">Trabajo base: Francisco González</p>
+ <div class="chips"><span>R</span><span>RStudio</span><span>tidyverse</span><span>ggplot2</span></div>
+ <div class="grid">
+  <div class="texto">
+   <h3>Descripción</h3>
+   <p>Fue nuestro primer acercamiento a R. Trabajamos con la base <i>starwars</i> que viene en tidyverse: 87 personajes descritos con 14 variables. Practicamos cómo seleccionar variables, filtrar y ordenar registros, crear una variable nueva, resumir por especie y desanidar listas con <code>unnest()</code>. El ejercicio cierra con una gráfica de altura contra peso para humanos, droides y wookiees.</p>
+   <p>Las preguntas del ejercicio se respondieron como comentarios dentro del script, que después se compiló como reporte HTML.</p>
+   <h3>Reflexión del equipo</h3>
+   <p>Trabajar con datos es más que ejecutar instrucciones: cada selección, filtro o variable nueva cambia el punto desde el que miramos la información. La lección más clara fue distinguir entre obtener un cálculo y construir una interpretación válida. La medida llamada «densidad» (altura entre masa) se calcula sin error, pero no es una densidad física porque no considera el volumen.</p>
+   <p>Desde las Humanidades Digitales, organizar los datos es un paso necesario, pero no reemplaza el conocimiento del objeto que estudiamos.</p>
+  </div>
+  <div class="visor">
+   <div class="barra"><b>Entregable original · reporte HTML de R</b><span><button class="btn amp" type="button">Ampliar</button></span></div>
+   <iframe src="entregables/ej1/reporte.html" loading="lazy" title="Reporte del ejercicio de dplyr"></iframe>
+  </div>
+ </div>
+ <div class="mejoras"><h3>Posibles mejoras</h3><ol>
+  <li>Renombrar <code>density</code> (por ejemplo, «índice altura/masa»), explicar que no es densidad física y añadir las unidades (cm y kg).</li>
+  <li>En el resumen por especie, separar la fila sin especie registrada (NA) y comentar el tamaño de cada grupo: varias especies tienen solo dos personajes, lo que limita hablar de estereotipos.</li>
+  <li>Responder con código lo que hoy se responde mirando la tabla. Por ejemplo, <code>count(name, sort = TRUE)</code> después de <code>unnest(starships)</code> muestra quién aparece más veces.</li>
+  <li>En la gráfica final, agregar unidades a los ejes, etiquetar los casos atípicos (R2-D2, R5-D4 y Tarfful) y añadir una línea de tendencia por especie para responder con más evidencia si existe relación entre altura y peso.</li>
+  <li>Aplicar <code>unnest()</code> también a las listas de películas y vehículos para ver qué personajes aparecen en más películas y si eso se relaciona con su número de naves.</li>
+  <li>Aplicar las mismas funciones a un conjunto de datos cultural o histórico, con criterios de selección y limitaciones explícitos.</li>
+ </ol></div>
+</div></section>
+
+<!-- ============ EJERCICIO 2 ============ -->
+<section class="ej band" id="ej2"><div class="wrap">
+ <div class="tope"><p class="kick">Ejercicio 2</p><a class="btn" href="#inicio">↑ Volver al inicio</a></div>
+ <h2>Ejercicio de Descarga de datos de Redes Sociales</h2>
+ <p class="meta">Trabajo base: Francisco González · API de The New York Times</p>
+ <div class="chips"><span>R</span><span>httr2</span><span>tidytext</span><span>wordcloud2</span><span>NYT Article Search API</span></div>
+ <div class="grid">
+  <div class="texto">
+   <h3>Descripción</h3>
+   <p>Consultamos la API Article Search de The New York Times con la búsqueda «hasan piker» en artículos de septiembre de 2026. La petición respondió con éxito y se recuperaron 32 artículos en cuatro páginas, con pausas entre solicitudes. Con los titulares y resúmenes se calcularon frecuencias de palabras y se generó una nube de palabras.</p>
+   <p>El reporte también documenta un problema real. En macOS Catalina, la librería httr2 chocaba con versiones de rlang y curl, y el ejercicio se terminó en una computadora con Windows 11.</p>
+   <h3>Reflexión del equipo</h3>
+   <p>Acceder a los datos no significa comprenderlos. En la nube de palabras dominaron términos de encuestas y elecciones (<i>poll</i>, <i>Siena</i>, <i>voters</i>), así que no podía leerse como un retrato del personaje ni de la postura del periódico. Una respuesta exitosa de la API demuestra que la solicitud funcionó, pero no garantiza que el corpus sea válido para la pregunta.</p>
+   <p>Las dificultades con el entorno también fueron aprendizaje técnico. Aprendimos a leer errores, reinstalar paquetes y decidir cuándo conviene cambiar de estrategia.</p>
+  </div>
+  <div class="visor">
+   <div class="barra"><b>Entregable original · reporte PDF</b><span><button class="btn amp" type="button">Ampliar</button> <a class="btn solo-web" href="entregables/ej2/original.pdf" target="_blank" rel="noopener">PDF</a> <a class="btn solo-web" href="entregables/ej2/script.R" target="_blank" rel="noopener">Script R</a></span></div>
+   <iframe src="entregables/ej2/visor.html" loading="lazy" title="Reporte de descarga de datos mediante API"></iframe>
+  </div>
+ </div>
+ <div class="mejoras"><h3>Posibles mejoras</h3><ol>
+  <li>Revisar uno por uno los 32 registros y marcar cuáles tratan realmente sobre el personaje. El peso de las encuestas en la nube sugiere que en muchos la mención es secundaria.</li>
+  <li>Agregar al análisis el primer párrafo (<code>lead_paragraph</code>) y las palabras clave que también entrega la API, y guardar la tabla en CSV para que el análisis se pueda reproducir.</li>
+  <li>Acompañar la nube con una gráfica de barras de las 20 palabras más frecuentes, porque la nube no permite comparar cantidades con precisión.</li>
+  <li>Afinar la limpieza: quitar el término de búsqueda y los números, y probar bigramas como «siena poll» o «el-sayed».</li>
+  <li>Ampliar el periodo de búsqueda y contar los artículos por semana o por mes para ver cuándo aumenta la cobertura y relacionarlo con eventos concretos.</li>
+  <li>Complementar la consulta con datos de una red social, por ejemplo comentarios de YouTube descargados con YouTube Data Tools, para contrastar la cobertura periodística con la conversación del público.</li>
+ </ol></div>
+</div></section>
+
+<!-- ============ EJERCICIO 3 ============ -->
+<section class="ej band" id="ej3"><div class="wrap">
+ <div class="tope"><p class="kick">Ejercicio 3</p><a class="btn" href="#inicio">↑ Volver al inicio</a></div>
+ <h2>Ejercicio con Voyant Tools</h2>
+ <p class="meta">Trabajo base: Christian Alcalá</p>
+ <div class="chips"><span>Voyant Tools</span><span>Cirrus</span><span>Tendencias</span><span>Contextos</span><span>TérminosBerry</span></div>
+ <div class="grid">
+  <div class="texto">
+   <h3>Descripción</h3>
+   <p>Analizamos cinco documentos sobre inteligencia artificial y educación, con 3,994 palabras en total y 1,257 términos únicos. «Inteligencia» y «artificial» aparecieron 26 veces cada una, y «educación» y «datos», 19.</p>
+   <p>Con las herramientas de frecuencia, tendencias, contextos y TérminosBerry comparamos cómo cambia la presencia de estos términos entre documentos y con qué conceptos se asocian: educación, evaluación y responsabilidades éticas.</p>
+   <h3>Reflexión del equipo</h3>
+   <p>Lo más significativo fue ver que la frecuencia de un término cambia entre documentos que comparten un tema general. Revisar «inteligencia» en contexto mostró asociaciones que una lista de palabras no deja ver.</p>
+   <p>Una lista de frecuencias no explica los argumentos de los autores: la lectura distante abre preguntas, pero la lectura cercana sigue siendo indispensable. La herramienta es valiosa cuando la visualización es el inicio de una interpretación, no su conclusión.</p>
+  </div>
+  <div class="visor">
+   <div class="barra"><b>Entregable original · reporte PDF</b><span><button class="btn amp" type="button">Ampliar</button> <a class="btn solo-web" href="entregables/ej3/original.pdf" target="_blank" rel="noopener">PDF</a></span></div>
+   <iframe src="entregables/ej3/visor.html" loading="lazy" title="Reporte de Voyant Tools"></iframe>
+  </div>
+ </div>
+ <div class="mejoras"><h3>Posibles mejoras</h3><ol>
+  <li>Ampliar el corpus. Con menos de 4,000 palabras queda lejos del corpus «extenso» que pide la actividad. Lo ideal es combinar textos breves con algunos largos, como informes o artículos académicos.</li>
+  <li>Definir criterios de selección del corpus: identificar autor, fuente y fecha de cada documento y elegir textos con perspectivas distintas (académica, periodística, institucional) para que la comparación sea más rica.</li>
+  <li>Comparar las estadísticas de cada documento (palabras, tipos, densidad léxica y palabras por oración) y relacionarlas con el tipo de texto.</li>
+  <li>Depurar la lista de <i>stopwords</i> con términos vacíos en este contexto (por ejemplo, conectores frecuentes en textos de divulgación) y volver a revisar las palabras más frecuentes.</li>
+  <li>Usar la herramienta de tendencias por segmentos para ver si los términos principales se distribuyen de forma pareja o alternada a lo largo de cada texto, y qué dice eso sobre su argumento.</li>
+  <li>Contrastar las concordancias con pasajes completos y probar más de una estrategia en TérminosBerry (términos principales y términos distintivos).</li>
+  <li>Explorar subtemas con las herramientas de colocaciones y correlaciones, por ejemplo qué palabras acompañan a «ética», «evaluación» o «docentes».</li>
+   </ol></div>
+</div></section>
+
+<!-- ============ EJERCICIO 4 ============ -->
+<section class="ej band" id="ej4"><div class="wrap">
+ <div class="tope"><p class="kick">Ejercicio 4</p><a class="btn" href="#inicio">↑ Volver al inicio</a></div>
+ <h2>Práctica con Google Ngram Viewer</h2>
+ <p class="meta">Trabajo base: Francisco González</p>
+ <div class="chips"><span>Google Ngram Viewer</span><span>Google Books</span><span>operadores / * _POS</span></div>
+ <div class="grid">
+  <div class="texto">
+   <h3>Descripción</h3>
+   <p>Comparamos en el corpus de libros en inglés expresiones como <i>digital humanities</i>, <i>computer science</i>, <i>humanities</i> y <i>big data</i>, y también las primeras denominaciones del campo, como <i>humanities computing</i>. Además, buscamos el término en varios idiomas y usamos los operadores avanzados de división, comodín y categoría gramatical.</p>
+   <p>En la segunda parte planteamos una pregunta propia: cómo evolucionaron el acrónimo LGBT, sus variantes y los términos que lo componen entre 1950 y 2022.</p>
+   <h3>Reflexión del equipo</h3>
+   <p>La frecuencia de una palabra no cuenta toda su historia. Las curvas responden a temporalidades distintas, y agregar términos amplios puede cambiar por completo la comparación. Nos pareció importante no confundir la disminución relativa de una palabra con la desaparición de una identidad o una experiencia social. El propio ejercicio reconoce que las gráficas no bastan para sostener una hipótesis de invisibilización.</p>
+   <p>Aprendimos a leer las tendencias como indicios que necesitan contexto histórico, editorial y lingüístico. La frecuencia en Google Books no representa por sí sola todo el lenguaje social.</p>
+  </div>
+  <div class="visor">
+   <div class="barra"><b>Entregable original · reporte PDF</b><span><button class="btn amp" type="button">Ampliar</button> <a class="btn solo-web" href="entregables/ej4/original.pdf" target="_blank" rel="noopener">PDF</a></span></div>
+   <iframe src="entregables/ej4/visor.html" loading="lazy" title="Reporte de Google Ngram Viewer"></iframe>
+  </div>
+ </div>
+ <div class="mejoras"><h3>Posibles mejoras</h3><ol>
+  <li>Probar cómo cambian las curvas al variar el suavizado y al activar la búsqueda sin distinguir mayúsculas, y registrar esos parámetros en cada consulta.</li>
+  <li>Profundizar en <code>*_ADJ humanities</code>: comparar con el operador / las variantes más frecuentes (ambientales, médicas, públicas, digitales) para ver cuál crece más rápido.</li>
+  <li>Contrastar los picos con hechos de la época, como la fundación de asociaciones, publicaciones de referencia o programas académicos, revisando los libros que enlaza Ngram.</li>
+  <li>Para LGBT+ y LGBTQ+, explicar que Ngram interpreta el signo + como operador y probar otras formas de escribir la consulta antes de descartarlas.</li>
+  <li>Mostrar ejemplos de Google Books de <i>gay</i> y <i>transvestite</i> en distintas décadas para documentar el cambio de significado que se menciona en las limitaciones.</li>
+  <li>Repetir la pregunta propia en el corpus en español para ver si las trayectorias coinciden.</li>
+ </ol></div>
+</div></section>
+
+<!-- ============ EJERCICIO 5 ============ -->
+<section class="ej band" id="ej5"><div class="wrap">
+ <div class="tope"><p class="kick">Ejercicio 5</p><a class="btn" href="#inicio">↑ Volver al inicio</a></div>
+ <h2>Ejercicio de Sentiment Analysis</h2>
+ <p class="meta">Trabajo base: Ivette Escudero · cuatro obras de Rubén Darío</p>
+ <div class="chips"><span>R</span><span>tidytext</span><span>AFINN en español</span><span>R Markdown</span></div>
+ <div class="grid">
+  <div class="texto">
+   <h3>Descripción</h3>
+   <p>Analizamos <i>Prosas profanas</i>, <i>Cantos de vida y esperanza</i>, <i>Los raros</i> y <i>Peregrinaciones</i>. Primero dividimos los textos en palabras, después las cruzamos con el léxico AFINN traducido al español y, para comparar obras de distinta extensión, normalizamos las puntuaciones por cada 1,000 palabras.</p>
+   <p><i>Prosas profanas</i> tuvo la mayor proporción de coincidencias positivas (60.7 %). <i>Los raros</i> fue la única obra donde predominaron las negativas (53.4 %) y la que tuvo el bloque de 100 palabras más negativo (−24). El reporte también identifica las palabras que más pesan en cada obra y revisa términos ambiguos como «no», «sin» o «nunca».</p>
+   <h3>Reflexión del equipo</h3>
+   <p>Fue la distancia más clara entre la puntuación calculada y la experiencia de leer. Las palabras con carga positiva o negativa dan pistas, pero no capturan ironías, imágenes poéticas ni ambigüedades. Además, decisiones técnicas como el diccionario o el tamaño de los bloques cambian los resultados.</p>
+   <p>Para quien apenas empezaba con RStudio, el ejercicio sirvió para perderle el miedo al código y descubrir otras formas de estudiar un texto. El valor de las Humanidades Digitales no está en reemplazar la interpretación literaria, sino en enriquecerla con nuevas preguntas.</p>
+  </div>
+  <div class="visor">
+   <div class="barra"><b>Entregable original · reporte HTML de R Markdown</b><span><button class="btn amp" type="button">Ampliar</button> <a class="btn solo-web" href="entregables/ej5/Analisis_Sentimientos_Ruben_Dario.Rmd" target="_blank" rel="noopener">Rmd</a></span></div>
+   <iframe src="entregables/ej5/reporte.html" loading="lazy" title="Reporte de análisis de sentimientos"></iframe>
+  </div>
+ </div>
+ <div class="mejoras"><h3>Posibles mejoras</h3><ol>
+  <li>Mostrar y comentar el texto de los bloques más positivo y más negativo de cada obra. Es el último paso que pide la actividad, y hoy solo se reportan los números.</li>
+  <li>Comparar los resultados con la agrupación que propone el enunciado del ejercicio: los bloques extremos cambian según el método, y conviene ver cuáles se mantienen.</li>
+  <li>Explicar qué pasa con las palabras que tienen más de una puntuación en el léxico: <code>distinct()</code> conserva la primera, y esa decisión conviene justificarla.</li>
+  <li>Tratar las negaciones que el propio análisis detecta, por ejemplo con bigramas que inviertan la polaridad de la palabra siguiente («no feliz»).</li>
+  <li>Quitar antes de tokenizar los textos editoriales de Gutenberg y marcas como «imagen».</li>
+  <li>Suavizar las curvas con una media móvil y repetir el análisis con un segundo léxico para ver qué resultados se mantienen.</li>
+ </ol></div>
+</div></section>
+
+<!-- ============ EJERCICIO 6 ============ -->
+<section class="ej band" id="ej6"><div class="wrap">
+ <div class="tope"><p class="kick">Ejercicio 6 · en equipo</p><a class="btn" href="#inicio">↑ Volver al inicio</a></div>
+ <h2>Diseñar una estructura de red relacional</h2>
+ <p class="meta">Trabajo colectivo del equipo · las fronteras entre los estados de México</p>
+ <div class="chips"><span>CSV de aristas</span><span>Natural Earth</span><span>Gephi 0.11.3</span><span>ForceAtlas 2</span></div>
+ <div class="grid">
+  <div class="texto">
+   <h3>Descripción</h3>
+   <p>Representamos las 32 entidades federativas como nodos y cada frontera terrestre compartida como una arista. El peso de cada arista son los kilómetros de frontera, estimados a partir de Natural Earth. La red tiene 65 aristas, un grado medio de 4.06, densidad de 0.131 y modularidad de 0.486, con cinco comunidades.</p>
+   <p>En la visualización, el tamaño de cada nodo indica su número de vecinos y el color, su comunidad. El Estado de México es de los más conectados y Baja California Sur tiene una sola conexión.</p>
+   <h3>Reflexión del equipo</h3>
+   <p>Nunca habíamos pensado las fronteras entre estados como una red. Al ver un mapa pensamos en ubicaciones, no en relaciones. Al principio fue complicado configurar la visualización y distinguir los atributos de nodos y aristas.</p>
+   <p>Comprendimos que una visualización no es solo una imagen atractiva: detrás hay datos, decisiones metodológicas y criterios de interpretación. Tener más vecinos, por ejemplo, no implica tener más kilómetros de frontera, y las comunidades se leen como vecindad, no como regiones.</p>
+  </div>
+  <div>
+   <div class="visor">
+    <div class="barra"><b>Entregable original · reporte PDF</b><span><button class="btn amp" type="button">Ampliar</button> <a class="btn solo-web" href="entregables/ej6/original.pdf" target="_blank" rel="noopener">PDF</a> <a class="btn solo-web" href="entregables/ej6/fronteras_estados_mexico.csv" target="_blank" rel="noopener">CSV</a></span></div>
+    <iframe src="entregables/ej6/visor.html" loading="lazy" title="Reporte de estructura de red relacional"></iframe>
+   </div>
+   <div class="extra">
+    <h3>Una segunda lectura del mismo CSV</h3>
+    <p style="font-size:15px">Al volver a los datos para este sitio, calculamos otras dos medidas. Muestran que el estado con más vecinos no es el que más conecta ni el que más frontera tiene.</p>
+    <div class="scroll"><table>
+     <thead><tr><th>Medida</th><th>Entidad que destaca</th><th class="n">Valor</th></tr></thead>
+     <tbody>
+      <tr><td>Más estados vecinos (grado)</td><td>Estado de México</td><td class="n">8</td></tr>
+      <tr><td>Mayor intermediación</td><td>San Luis Potosí</td><td class="n">0.32</td></tr>
+      <tr><td>Segunda mayor intermediación</td><td>Veracruz</td><td class="n">0.31</td></tr>
+      <tr><td>Más km de frontera (grado ponderado)</td><td>Zacatecas</td><td class="n">2,267 km</td></tr>
+     </tbody>
+    </table></div>
+    <p class="nota">Cálculo propio con Python (networkx) sobre el archivo del ejercicio. La intermediación está normalizada y los kilómetros son estimaciones cartográficas, no cifras oficiales.</p>
+   </div>
+  </div>
+ </div>
+ <div class="mejoras"><h3>Posibles mejoras</h3><ol>
+  <li>Calcular la modularidad con los pesos y comparar esas comunidades con las obtenidas sin pesos.</li>
+  <li>Incorporar al análisis la intermediación y el grado ponderado, como en la tabla de arriba, para distinguir vecindad, función de puente y extensión de frontera.</li>
+  <li>Describir qué entidades forman cada comunidad y compararlas con regionalizaciones conocidas del país.</li>
+  <li>Probar una distribución geográfica con coordenadas (por ejemplo, con el complemento GeoLayout) junto a ForceAtlas 2.</li>
+  <li>Documentar el criterio usado para fronteras muy cortas o simples puntos de contacto, y contrastar los kilómetros estimados con fuentes oficiales como el INEGI.</li>
+  <li>Agregar atributos a los nodos, como población o región, para usarlos en el color o el tamaño y plantear preguntas sociales o históricas sobre la red.</li>
+ </ol></div>
+</div></section>
+
+<!-- ============ EJERCICIO 7 ============ -->
+<section class="ej band" id="ej7"><div class="wrap">
+ <div class="tope"><p class="kick">Ejercicio 7 · en equipo</p><a class="btn" href="#inicio">↑ Volver al inicio</a></div>
+ <h2>Ejercicio de manejo de Gephi</h2>
+ <p class="meta">Trabajo colectivo del equipo · comentarios de un video de YouTube sobre el sistema de salud</p>
+ <div class="chips"><span>YouTube Data Tools</span><span>GEXF</span><span>Gephi</span><span>Modularidad</span><span>Intermediación</span></div>
+ <div class="grid">
+  <div class="texto">
+   <h3>Descripción</h3>
+   <p>Descargamos los comentarios del video «La realidad del sistema de salud en México», de Eva María Beristain (Ruido Social): 4,150 comentarios de 3,193 usuarios. La red dirigida tiene 3,193 nodos y 1,028 aristas, con densidad de 0.0001, modularidad de 0.802 y 2,450 comunidades. Es una conversación muy fragmentada.</p>
+   <p>Comparamos el grado de entrada con la intermediación. El usuario con más respuestas (106) no es el que más funciona como puente. Además, hicimos una lectura cualitativa de los comentarios, donde aparecieron cuatro temas: escasez de insumos, empatía con el personal de salud, desconfianza política y solidaridad.</p>
+   <h3>Reflexión del equipo</h3>
+   <p>Esta red, basada en intercambios digitales, se comporta muy distinto de la red geográfica del ejercicio anterior. Indicadores como el grado, la densidad o la modularidad describen las conexiones registradas, pero no explican su significado social. Un nodo con muchas respuestas no demuestra aprobación, influencia ni representatividad.</p>
+   <p>Contrastar las métricas con la lectura de comentarios fue lo más útil. Ahí aparecieron críticas a las prioridades políticas, ofrecimientos de apoyo y llamados a la acción. La visualización sirve para investigar relaciones, no para sustituir el contexto.</p>
+  </div>
+  <div>
+   <div class="visor">
+    <div class="barra"><b>Entregable original · reporte PDF</b><span><button class="btn amp" type="button">Ampliar</button> <a class="btn solo-web" href="entregables/ej7/original.pdf" target="_blank" rel="noopener">PDF</a></span></div>
+    <iframe src="entregables/ej7/visor.html" loading="lazy" title="Reporte de análisis con Gephi"></iframe>
+   </div>
+   <div class="ext" data-src="https://www.youtube-nocookie.com/embed/31WeAff3jSQ" data-link="https://www.youtube.com/watch?v=31WeAff3jSQ" data-title="Video analizado: La realidad del sistema de salud en México (YouTube)"></div>
+  </div>
+ </div>
+ <div class="mejoras"><h3>Posibles mejoras</h3><ol>
+  <li>Filtrar los nodos aislados (por ejemplo, con k-core o quedándose con el componente principal) para que el grafo y las comunidades se lean mejor. Muchas de las 2,450 comunidades son usuarios sin respuestas.</li>
+  <li>Explicar qué representa una arista en el archivo de YouTube Data Tools y si tiene peso.</li>
+  <li>Usar los «me gusta» del CSV como otra medida de relevancia y compararlos con el grado de entrada.</li>
+  <li>Etiquetar en el grafo los nodos que se discuten en el texto y agregar acercamientos a las zonas de interés.</li>
+  <li>Codificar una muestra documentada de hilos con los cuatro temas identificados, para pasar de una lectura exploratoria a un análisis cualitativo sistemático.</li>
+  <li>Usar las fechas de los comentarios (del 18 al 31 de octubre) para ver en qué momentos se concentran las interacciones.</li>
+ </ol></div>
+</div></section>
+
+<!-- ============ EJERCICIO 8 ============ -->
+<section class="ej band" id="ej8"><div class="wrap">
+ <div class="tope"><p class="kick">Ejercicio 8 · en equipo</p><a class="btn" href="#inicio">↑ Volver al inicio</a></div>
+ <h2>Ejercicio con shinyApps</h2>
+ <p class="meta">Trabajo colectivo del equipo · aplicación NYT Book Explorer</p>
+ <div class="chips"><span>R</span><span>Shiny</span><span>ggplot2</span><span>Posit Connect Cloud</span></div>
+ <div class="grid">
+  <div class="texto">
+   <h3>Descripción</h3>
+   <p>Construimos una aplicación web a partir de 7,431 libros que entraron a la lista de <i>best sellers</i> de The New York Times entre 1931 y 2020. La aplicación permite elegir un periodo, alternar entre el número de libros que debutaron cada año y el promedio de semanas que permanecieron en la lista, filtrar solo los que llegaron al primer lugar y ver un ranking de autores.</p>
+   <p>Un resumen en texto se actualiza con cada filtro y menciona el libro que más tiempo duró en la lista. La aplicación está publicada en Posit Connect Cloud.</p>
+   <h3>Reflexión del equipo</h3>
+   <p>Pasamos de analizar datos en RStudio a pensar cómo otras personas podrían usar los resultados. Diseñar una herramienta implica decidir qué mostrar, cómo nombrar las métricas y qué opciones ofrecer. Una interfaz puede facilitar el acceso a los datos, pero también puede ocultar sus restricciones si no explicamos qué representa cada registro.</p>
+   <p>El número de títulos o las semanas en una lista comercial no equivalen a calidad literaria ni a relevancia cultural. Una aplicación digital también es una forma de comunicar decisiones de investigación.</p>
+  </div>
+  <div>
+   <div class="ext app" data-src="https://01a1e0a5-b74c-daa1-9514-2fd79f5fa835.share.connect.posit.cloud/" data-link="https://01a1e0a5-b74c-daa1-9514-2fd79f5fa835.share.connect.posit.cloud/" data-title="Aplicación en línea: NYT Book Explorer" style="margin-top:0"></div>
+   <div class="visor" style="margin-top:16px">
+    <div class="barra"><b>Presentación del equipo</b><span><button class="btn amp" type="button">Ampliar</button> <a class="btn solo-web" href="entregables/ej8/app.R" target="_blank" rel="noopener">app.R</a></span></div>
+    <iframe src="entregables/ej8/visor.html" loading="lazy" title="Presentación de NYT Book Explorer"></iframe>
+   </div>
+  </div>
+ </div>
+ <div class="mejoras"><h3>Posibles mejoras</h3><ol>
+  <li>Incluir dentro de la aplicación una nota metodológica visible: de dónde proviene el archivo, qué representa cada registro y qué significa cada métrica.</li>
+  <li>Advertir que el formato de la lista cambió a lo largo de nueve décadas (número de posiciones y categorías), por lo que los conteos por año no comparan periodos equivalentes.</li>
+  <li>Agregar una tabla para buscar por título o autor (por ejemplo, con el paquete DT) y mostrar los valores al pasar el cursor sobre las barras.</li>
+  <li>Normalizar los nombres de autores y los títulos, que vienen en mayúsculas, antes de agruparlos.</li>
+  <li>Aprovechar variables que ya están en los datos y no se usan, como la posición de debut, para preguntar, por ejemplo, si los libros que debutan más arriba permanecen más semanas.</li>
+  <li>Probar la aplicación con personas ajenas al equipo y ajustar los nombres de los controles y las métricas según lo que entiendan.</li>
+ </ol></div>
+</div></section>
+
+<!-- ============ CIERRE ============ -->
+<section class="cierre band" id="reflexion"><div class="wrap">
+ <div class="tope" style="grid-column:1/-1;margin-bottom:-8px"><span></span><a class="btn" href="#inicio">↑ Volver al inicio</a></div>
+ <div>
+  <h2>Aprender a preguntar con herramientas digitales</h2>
+  <p class="preg">¿Qué podemos afirmar realmente a partir de los datos y procedimientos que utilizamos?</p>
+  <p>Pasamos por programación, recuperación de información, análisis textual, historia del lenguaje, sentimientos, redes y desarrollo de aplicaciones. Aunque cada ejercicio tenía objetivos distintos, todos nos llevaron a esa misma pregunta.</p>
+  <p>Las herramientas no producen interpretaciones neutrales ni completas. Elegir un corpus, construir una consulta, definir una variable, usar un diccionario de sentimientos o trazar una conexión en una red son decisiones metodológicas. Los gráficos ayudan a encontrar patrones, pero también pueden simplificar fenómenos que necesitan contexto histórico, cultural y social.</p>
+ </div>
+ <div>
+  <h2>Lo que nos llevamos</h2>
+  <p>Las dificultades técnicas formaron parte del proceso: entornos de programación, formatos, paquetes y advertencias. No dominamos todas las herramientas, pero ahora tenemos una base para experimentar, detectar errores y plantear mejores preguntas.</p>
+  <p>Colaborar no fue solo reunir archivos o dividir tareas. También fue discutir criterios, revisar interpretaciones y decidir juntos qué merecía presentarse.</p>
+  <p>Terminamos con una idea más amplia de las Humanidades Digitales: no como una colección de programas, sino como un diálogo entre preguntas humanísticas, datos y métodos computacionales. Nuestro siguiente reto es aplicar esto en investigaciones propias, documentar mejor nuestras decisiones y mantener una postura crítica frente a resultados que, por verse precisos, podrían parecer incuestionables.</p>
+ </div>
+</div></section>
+
+<footer class="band" style="padding-block:28px"><div class="wrap">
+ <span>Christian Alcalá · Ivette Escudero · Francisco González · Eugenia Rodríguez · Arsenio Salmones</span>
+ <span>EH4004.10 Tecnologías Digitales · Tecnológico de Monterrey · 2026</span>
+</div></footer>
+
+<script>
+{
+ let framed = true;
+ try { framed = window.self !== window.top; } catch (e) { framed = true; }
+ if (!framed) document.documentElement.classList.add('web');
+
+ /* Enlaces externos: iframe cuando el sitio está publicado por su cuenta; tarjeta con enlace dentro del visor de Claude */
+ for (const el of document.querySelectorAll('.ext')) {
+  const t = el.dataset.title, link = el.dataset.link, src = el.dataset.src;
+  el.innerHTML = `<p><b>${t}</b><br><a href="${link}" target="_blank" rel="noopener">Abrir en una pestaña nueva ↗</a></p>` +
+   (framed ? '' : `<iframe src="${src}" title="${t}" loading="lazy" allow="fullscreen; encrypted-media; picture-in-picture" allowfullscreen></iframe>`);
+ }
+
+ /* Ampliar visores */
+ for (const b of document.querySelectorAll('.amp')) {
+  b.addEventListener('click', () => {
+   const v = b.closest('.visor'); const on = v.classList.toggle('max');
+   document.body.classList.toggle('ver', on); b.textContent = on ? 'Cerrar' : 'Ampliar';
+  });
+ }
+ document.addEventListener('keydown', e => {
+  if (e.key !== 'Escape') return;
+  const v = document.querySelector('.visor.max'); if (!v) return;
+  v.classList.remove('max'); document.body.classList.remove('ver'); v.querySelector('.amp').textContent = 'Ampliar';
+ });
+
+ /* Red de la portada */
+ const nodos = [
+  {id:1,x:70,y:70,r:30,l:'dplyr en R'},{id:2,x:215,y:62,r:24,l:'Descarga vía API'},{id:3,x:355,y:85,r:27,l:'Voyant Tools'},
+  {id:4,x:440,y:195,r:22,l:'Google Ngram'},{id:5,x:290,y:205,r:32,l:'Sentiment analysis'},{id:6,x:120,y:225,r:25,l:'Red relacional'},
+  {id:7,x:200,y:335,r:30,l:'Redes en Gephi'},{id:8,x:390,y:330,r:34,l:'shinyApps'}];
+ const aristas = [[1,2],[2,3],[3,4],[1,5],[3,5],[4,5],[1,6],[6,7],[2,7],[5,8],[1,8],[7,8],[3,7],[2,5]];
+ const P = Object.fromEntries(nodos.map(n => [n.id, n]));
+ document.getElementById('aristas').innerHTML = aristas.map(([a,b]) =>
+  `<line class="e" x1="${P[a].x}" y1="${P[a].y}" x2="${P[b].x}" y2="${P[b].y}"/>`).join('');
+ document.getElementById('nodos').innerHTML = nodos.map(n => {
+  const ly = n.id === 2 ? n.y - n.r - 14 : n.y + n.r + 22;
+  return `<a href="#ej${n.id}" aria-label="Ejercicio ${n.id}: ${n.l}"><circle class="halo" cx="${n.x}" cy="${n.y}" r="${n.r+9}"/><circle cx="${n.x}" cy="${n.y}" r="${n.r}"/>` +
+   `<text class="n" x="${n.x}" y="${n.y}">${n.id}</text>` +
+   `<text x="${n.x}" y="${ly}" text-anchor="middle">${n.l}</text></a>`;
+ }).join('');
+
+ /* Menú: resaltar sección visible */
+ const links = [...document.querySelectorAll('nav.menu a')];
+ const io = new IntersectionObserver(es => {
+  for (const e of es) if (e.isIntersecting) {
+   links.forEach(a => a.classList.toggle('on', a.getAttribute('href') === '#' + e.target.id));
+  }
+ }, {rootMargin: '-45% 0px -50% 0px'});
+ for (const s of document.querySelectorAll('header[id],section[id]')) io.observe(s);
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,66 @@
+Source,Target,Weight
+Aguascalientes,Jalisco,116
+Aguascalientes,Zacatecas,199
+Baja California,Baja California Sur,136
+Baja California,Sonora,82
+Campeche,Quintana Roo,217
+Campeche,Tabasco,248
+Campeche,Yucatán,196
+Chiapas,Oaxaca,133
+Chiapas,Tabasco,431
+Chiapas,Veracruz,40
+Chihuahua,Coahuila,283
+Chihuahua,Durango,500
+Chihuahua,Sinaloa,256
+Chihuahua,Sonora,606
+Ciudad de México,Morelos,38
+Ciudad de México,Estado de México,128
+Coahuila,Durango,326
+Coahuila,Nuevo León,681
+Coahuila,Zacatecas,249
+Colima,Jalisco,206
+Colima,Michoacán,49
+Durango,Nayarit,203
+Durango,Sinaloa,419
+Durango,Zacatecas,467
+Guanajuato,Jalisco,206
+Guanajuato,Michoacán,337
+Guanajuato,Querétaro,241
+Guanajuato,San Luis Potosí,221
+Guerrero,Michoacán,355
+Guerrero,Morelos,88
+Guerrero,Estado de México,188
+Guerrero,Oaxaca,241
+Guerrero,Puebla,107
+Hidalgo,Estado de México,254
+Hidalgo,Puebla,128
+Hidalgo,Querétaro,170
+Hidalgo,San Luis Potosí,83
+Hidalgo,Tlaxcala,70
+Hidalgo,Veracruz,318
+Jalisco,Michoacán,390
+Jalisco,Nayarit,362
+Jalisco,Zacatecas,854
+Michoacán,Estado de México,147
+Michoacán,Querétaro,39
+Morelos,Estado de México,111
+Morelos,Puebla,134
+Estado de México,Puebla,51
+Estado de México,Querétaro,59
+Estado de México,Tlaxcala,22
+Nayarit,Sinaloa,122
+Nayarit,Zacatecas,6
+Nuevo León,San Luis Potosí,208
+Nuevo León,Tamaulipas,841
+Oaxaca,Puebla,297
+Oaxaca,Veracruz,497
+Puebla,Tlaxcala,253
+Puebla,Veracruz,584
+Querétaro,San Luis Potosí,140
+Quintana Roo,Yucatán,352
+San Luis Potosí,Tamaulipas,266
+San Luis Potosí,Veracruz,184
+San Luis Potosí,Zacatecas,492
+Sinaloa,Sonora,112
+Tabasco,Veracruz,131
+Tamaulipas,Veracruz,117

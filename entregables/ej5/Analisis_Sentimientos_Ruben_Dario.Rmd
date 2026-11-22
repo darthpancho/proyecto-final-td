@@ -1,0 +1,605 @@
+
+---
+title: "Análisis de sentimientos en la obra de Rubén Darío"
+subtitle: "Una aproximación desde las Humanidades Digitales"
+author: "Ivette Escudero"
+date: "17 de octubre de 2026"
+output:
+  html_document:
+    toc: true
+    toc_depth: 3
+    number_sections: true
+    theme: cosmo
+    highlight: tango
+---
+
+
+# Introducción
+
+El análisis de sentimientos es una técnica de procesamiento computacional de textos que permite identificar tendencias de valoración positiva y negativa a partir de las palabras que componen un corpus.
+
+Desde las Humanidades Digitales, esta metodología ofrece nuevas posibilidades para explorar obras literarias, identificar patrones lingüísticos y complementar la interpretación tradicional de los textos.
+
+En este ejercicio se analizarán cuatro obras de Rubén Darío: *Prosas profanas*, *Cantos de vida y esperanza*, *Los raros* y *Peregrinaciones*. Para ello, se utilizará el lenguaje de programación R y el diccionario AFINN adaptado al español.
+
+# Objetivo
+
+Analizar y comparar la evolución de las puntuaciones de sentimiento en cuatro obras de Rubén Darío mediante herramientas de minería de textos en R, identificando tendencias positivas y negativas y contrastando los resultados computacionales con fragmentos de las obras.
+
+# Metodología
+
+Se realizará un análisis cuantitativo exploratorio mediante la biblioteca `tidytext`. Los textos se dividirán en palabras y se relacionarán con el diccionario AFINN traducido al español, que asigna valores numéricos de sentimiento a determinados términos.
+
+Posteriormente, las puntuaciones se agruparán en segmentos de 100 palabras para visualizar su evolución a lo largo de cada obra.
+
+Finalmente, se compararán los segmentos con puntuaciones más positivas y negativas, considerando las limitaciones de una interpretación automatizada del lenguaje literario.
+
+# Desarrollo del análisis
+
+# Preparación del entorno de trabajo
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(
+  echo = TRUE,
+  message = FALSE,
+  warning = FALSE
+)
+
+library(tidyverse)
+library(tidytext)
+
+```
+
+# Carga del corpus literario y del diccionario AFINN
+
+En esta etapa se incorporan las cuatro obras de Rubén Darío y el diccionario de sentimientos AFINN adaptado al español. La revisión inicial de los archivos permitirá identificar su estructura y preparar los datos para el análisis computacional.
+
+```{r carga-datos}
+
+prosasProfanas <- readRDS("prosasProfanas.rds")
+cantosVida <- readRDS("cantosVida.rds")
+losRaros <- readRDS("losRaros.rds")
+peregrinaciones <- readRDS("peregrinaciones.rds")
+
+Afinn <- read.csv(
+  "lexico_afinn_es.csv",
+  header = TRUE,
+  stringsAsFactors = FALSE,
+  fileEncoding = "latin1"
+)
+
+# Revisar la estructura de los archivos
+names(prosasProfanas)
+names(cantosVida)
+names(losRaros)
+names(peregrinaciones)
+names(Afinn)
+
+# Visualizar las primeras filas
+head(prosasProfanas)
+head(Afinn)
+
+```
+# Construcción del corpus literario
+
+Para realizar el análisis comparativo, se integran las cuatro
+obras de Rubén Darío en un corpus unificado. Cada fragmento
+conserva la identificación de su obra de origen, lo que
+permitirá comparar posteriormente las puntuaciones de
+sentimiento entre los textos.
+
+```{r}
+corpus <- bind_rows(
+  prosasProfanas %>%
+    mutate(obra = "Prosas profanas"),
+  cantosVida %>%
+    mutate(obra = "Cantos de vida y esperanza"),
+  losRaros %>%
+    mutate(obra = "Los raros"),
+  peregrinaciones %>%
+    mutate(obra = "Peregrinaciones")
+)
+
+# Revisar la estructura del corpus
+glimpse(corpus)
+
+# Contar los fragmentos de cada obra
+corpus %>%
+  count(obra)
+```
+# Tokenización del corpus literario
+
+La tokenización consiste en dividir los textos en unidades
+individuales de análisis, en este caso palabras. Este
+procedimiento permite identificar los términos presentes
+en cada obra y preparar su comparación con el diccionario
+de sentimientos AFINN.
+
+```{r tokenizacion}
+corpus_tokens <- corpus %>%
+  group_by(obra) %>%
+  mutate(linea = row_number()) %>%
+  ungroup() %>%
+  unnest_tokens(palabra, text)
+
+# Revisar las primeras palabras
+head(corpus_tokens)
+
+# Contar las palabras de cada obra
+corpus_tokens %>%
+  count(obra, name = "total_palabras")
+```
+# Preparación del diccionario de sentimientos AFINN
+
+Se prepara el diccionario AFINN adaptado al español
+para relacionar las palabras del corpus literario
+con sus respectivas puntuaciones de sentimiento.
+
+Este procedimiento permite identificar términos
+con valoraciones positivas y negativas, aunque
+sus resultados requieren una interpretación
+contextual de las obras literarias.
+
+```{r preparar-afinn}
+afinn_es <- Afinn %>%
+  transmute(
+    palabra = str_to_lower(str_trim(Palabra)),
+    puntuacion = as.numeric(Puntuacion)
+  ) %>%
+  filter(!is.na(palabra), palabra != "",
+         !is.na(puntuacion)) %>%
+  distinct(palabra, .keep_all = TRUE)
+
+# Revisar las primeras filas
+head(afinn_es)
+
+# Contar las entradas del diccionario
+nrow(afinn_es)
+```
+# Identificación de palabras con carga de sentimiento
+
+En esta etapa se relacionan las palabras de las cuatro
+obras de Rubén Darío con el diccionario AFINN adaptado
+al español.
+
+El procedimiento permite identificar términos asociados
+con valoraciones positivas y negativas, así como conocer
+la cantidad de coincidencias en cada obra.
+
+Es importante considerar que estas puntuaciones
+corresponden a palabras individuales y no representan
+necesariamente el significado emocional completo
+de los fragmentos literarios.
+
+```{r cruce-afinn}
+# Relacionar el corpus con el diccionario AFINN
+sentimientos <- corpus_tokens %>%
+  inner_join(afinn_es, by = "palabra")
+
+# Revisar las primeras coincidencias
+head(sentimientos)
+
+# Contar las palabras con puntuación por obra
+sentimientos %>%
+  count(obra, name = "palabras_con_sentimiento")
+```
+
+# Clasificar sentimientos positivos y negativos
+resumen_sentimientos <- sentimientos %>%
+  mutate(
+    tipo = case_when(
+      puntuacion > 0 ~ "Positivo",
+      puntuacion < 0 ~ "Negativo",
+      TRUE ~ "Neutro"
+    )
+  ) %>%
+  count(obra, tipo, name = "frecuencia")
+print(resumen_sentimientos)
+# Mostrar resultados
+print(resumen_sentimientos)
+
+
+# Cálculo y normalización de sentimientos por obra
+
+Una vez identificadas las coincidencias entre el corpus literario de Rubén Darío y el diccionario AFINN adaptado al español, se procede a calcular la puntuación de sentimiento de cada obra.
+
+El diccionario AFINN asigna valores positivos o negativos a determinadas palabras según su carga afectiva. La suma de estas puntuaciones permite obtener un indicador cuantitativo de la polaridad léxica presente en cada texto.
+
+Debido a que las cuatro obras tienen extensiones diferentes, se normalizan las puntuaciones por cada 1,000 palabras. Este procedimiento permite realizar comparaciones más equilibradas entre los textos, evitando que las obras de mayor extensión acumulen puntuaciones superiores únicamente por contener más palabras.
+
+```{r puntuaciones-obras}
+# Calcular puntuaciones de sentimiento por obra
+
+puntuaciones_obras <- sentimientos %>%
+  group_by(obra) %>%
+  summarise(
+    puntuacion_total = sum(puntuacion),
+    .groups = "drop"
+  ) %>%
+  left_join(
+    corpus_tokens %>%
+      count(obra, name = "total_palabras"),
+    by = "obra"
+  ) %>%
+  mutate(
+    puntuacion_normalizada =
+      puntuacion_total / total_palabras * 1000
+  )
+
+# Mostrar resultados
+print(puntuaciones_obras)
+```
+
+```{r puntuaciones-obras-resumen3}
+# Calcular puntuaciones de sentimiento por obra
+
+puntuaciones_obras <- sentimientos %>%
+  group_by(obra) %>%
+  summarise(
+    puntuacion_total = sum(puntuacion),
+    .groups = "drop"
+  ) %>%
+  left_join(
+    corpus_tokens %>%
+      count(obra, name = "total_palabras"),
+    by = "obra"
+  ) %>%
+  mutate(
+    puntuacion_normalizada =
+      puntuacion_total / total_palabras * 1000
+  )
+
+# Mostrar resultados
+print(puntuaciones_obras)
+```
+
+### Interpretación de los resultados
+
+La puntuación total representa la suma de los valores emocionales asignados a las palabras identificadas mediante el diccionario AFINN.
+
+Por su parte, la puntuación normalizada expresa el balance de polaridad léxica por cada 1,000 palabras de cada obra.
+
+Los valores positivos indican un predominio de puntuaciones positivas, mientras que los negativos reflejan un predominio de puntuaciones negativas. Los valores cercanos a cero sugieren un mayor equilibrio entre ambas polaridades.
+
+Estos resultados deben interpretarse como indicadores computacionales y no como una representación definitiva del significado emocional de las obras. El análisis automatizado no identifica necesariamente recursos literarios como la ironía, las metáforas o las ambigüedades del lenguaje poético.
+
+
+# Visualización comparativa de la polaridad léxica
+
+Para facilitar la interpretación de los resultados, se presenta una gráfica de barras que compara las puntuaciones de sentimiento normalizadas por cada 1,000 palabras.
+
+Esta representación permite identificar las diferencias en el balance de polaridad léxica entre las cuatro obras, independientemente de su extensión.
+
+```{r grafica-polaridad, fig.width=10, fig.height=6}
+library(ggplot2)
+
+ggplot(puntuaciones_obras,
+       aes(x = reorder(obra, puntuacion_normalizada),
+           y = puntuacion_normalizada,
+           fill = puntuacion_normalizada > 0)) +
+  geom_col(width = 0.65) +
+  geom_hline(yintercept = 0, color = "gray40") +
+  coord_flip() +
+  scale_fill_manual(
+    values = c("TRUE" = "#2878B5",
+               "FALSE" = "#D96B6B"),
+    guide = "none"
+  ) +
+  labs(
+    title = "Polaridad léxica en cuatro obras de Rubén Darío",
+    subtitle = "Análisis mediante AFINN adaptado al español",
+    x = "Obra literaria",
+    y = "Puntuación AFINN por cada 1,000 palabras",
+    caption = "Fuente: elaboración propia a partir del corpus literario y AFINN."
+  ) +
+  theme_minimal(base_size = 12)
+```
+
+### Interpretación de la visualización
+
+Los resultados muestran diferencias en la polaridad léxica de las cuatro obras analizadas. *Prosas profanas* registra la puntuación positiva normalizada más elevada, mientras que *Los raros* presenta una puntuación ligeramente negativa.
+
+Por su parte, *Cantos de vida y esperanza* y *Peregrinaciones* muestran balances positivos, aunque con diferentes intensidades.
+
+Estas diferencias constituyen un punto de partida para explorar la relación entre el vocabulario afectivo, los temas literarios y las características expresivas de la producción de Rubén Darío.
+
+Es importante reconocer que el análisis basado en diccionarios no considera plenamente el contexto semántico, la ironía ni los recursos retóricos propios del lenguaje literario.
+
+
+# Distribución porcentual de sentimientos positivos y negativos
+
+Con el propósito de profundizar en el análisis comparativo, se examina la proporción de coincidencias léxicas positivas y negativas identificadas en las cuatro obras de Rubén Darío.
+
+A diferencia del cálculo de polaridad normalizada, que considera la suma de las puntuaciones AFINN, esta visualización presenta el porcentaje de palabras clasificadas en cada categoría, sin distinguir la intensidad de sus puntuaciones.
+
+Este procedimiento permite identificar qué polaridad predomina entre las palabras reconocidas por el diccionario en cada obra.
+
+
+```{r resumen-sentimientos-exportacion}
+# Clasificar los sentimientos de cada obra
+resumen_sentimientos <- sentimientos %>%
+  dplyr::mutate(
+    tipo = dplyr::case_when(
+      puntuacion > 0 ~ "Positivo",
+      puntuacion < 0 ~ "Negativo",
+      TRUE ~ "Neutro"
+    )
+  ) %>%
+  dplyr::count(obra, tipo, name = "frecuencia")
+
+# Mostrar la tabla
+print(resumen_sentimientos)
+```
+
+```{r grafica-distribucion-sentimientos, fig.width=10, fig.height=6}
+# Calcular porcentajes de sentimientos por obra
+
+distribucion_sentimientos <- resumen_sentimientos %>%
+  group_by(obra) %>%
+  mutate(
+    porcentaje = frecuencia / sum(frecuencia) * 100
+  ) %>%
+  ungroup()
+
+# Visualizar la tabla de porcentajes
+print(distribucion_sentimientos)
+
+# Crear gráfica de barras apiladas
+
+ggplot(distribucion_sentimientos,
+       aes(x = obra,
+           y = porcentaje,
+           fill = tipo)) +
+  geom_col(width = 0.65) +
+  geom_text(
+    aes(label = paste0(round(porcentaje, 1), "%")),
+    position = position_stack(vjust = 0.5),
+    color = "white",
+    size = 4
+  ) +
+  coord_flip() +
+  scale_fill_manual(
+    values = c(
+      "Positivo" = "#2878B5",
+      "Negativo" = "#D96B6B"
+    )
+  ) +
+  labs(
+    title = "Distribución de sentimientos en Rubén Darío",
+    subtitle = "Porcentaje de coincidencias positivas y negativas según AFINN",
+    x = "Obra literaria",
+    y = "Porcentaje de coincidencias (%)",
+    fill = "Polaridad",
+    caption = "Fuente: elaboración propia a partir del corpus literario y AFINN."
+  ) +
+  theme_minimal(base_size = 12) +
+  theme(
+    legend.position = "bottom",
+    plot.title = element_text(face = "bold")
+  )
+```
+
+### Interpretación de los resultados
+
+La distribución porcentual muestra diferencias en la presencia relativa de vocabulario positivo y negativo entre las cuatro obras.
+
+*Prosas profanas* presenta el mayor porcentaje de coincidencias positivas (60.7%), seguida de *Cantos de vida y esperanza* (55.6%) y *Peregrinaciones* (52.2%).
+
+En contraste, *Los raros* registra una mayor proporción de coincidencias negativas (53.4%), frente al 46.6% de positivas.
+
+Estos resultados complementan la visualización de polaridad normalizada y permiten observar que las diferencias entre las obras no dependen únicamente de su extensión.
+
+Sin embargo, los porcentajes representan exclusivamente las palabras reconocidas por el diccionario AFINN. Por tanto, no deben interpretarse como porcentajes del contenido emocional total de cada obra.
+
+La combinación de ambas visualizaciones ofrece una aproximación cuantitativa al vocabulario afectivo de Rubén Darío y constituye un punto de partida para una interpretación literaria contextualizada.
+
+# Identificación de las palabras con mayor carga emocional
+
+Con el propósito de profundizar en el análisis de sentimientos, se identifican las palabras que presentan una mayor contribución a la polaridad positiva y negativa en las cuatro obras seleccionadas de Rubén Darío.
+
+Para ello, se utiliza el diccionario AFINN adaptado al español, que asigna valores numéricos a determinadas palabras según su asociación con sentimientos positivos o negativos.
+
+A diferencia de la comparación general de polaridad, este procedimiento permite reconocer los términos específicos que contribuyen a los resultados de cada obra, considerando tanto su frecuencia de aparición como su puntuación emocional.
+
+Este análisis constituye una aproximación cuantitativa al vocabulario literario y no pretende determinar por sí mismo el significado emocional completo de las obras.
+
+
+```{r palabras-emocionales}
+# Calcular la contribución emocional de cada palabra
+palabras_emocionales <- sentimientos %>%
+  group_by(obra, palabra, puntuacion) %>%
+  summarise(
+    frecuencia = n(),
+    .groups = "drop"
+  ) %>%
+  mutate(
+    contribucion = frecuencia * puntuacion,
+    polaridad = if_else(
+      puntuacion > 0,
+      "Positiva",
+      "Negativa"
+    )
+  )
+
+# Seleccionar las 10 palabras más influyentes
+# por obra y polaridad
+top_palabras <- palabras_emocionales %>%
+  group_by(obra, polaridad) %>%
+  slice_max(
+    order_by = abs(contribucion),
+    n = 10,
+    with_ties = FALSE
+  ) %>%
+  ungroup()
+
+# Mostrar la tabla
+print(top_palabras, n = 80)
+```
+
+```{r grafica-palabras-emocionales, fig.width=12, fig.height=10}
+# Visualizar las palabras con mayor contribución emocional
+ggplot(
+  top_palabras,
+  aes(
+    x = reorder(palabra, contribucion),
+    y = contribucion,
+    fill = polaridad
+  )
+) +
+  geom_col(show.legend = TRUE) +
+  coord_flip() +
+  facet_wrap(
+    ~ obra,
+    scales = "free",
+    ncol = 2
+  ) +
+  scale_fill_manual(
+    values = c(
+      "Positiva" = "#2878B5",
+      "Negativa" = "#D96B6B"
+    )
+  ) +
+  labs(
+    title = "Palabras con mayor contribución emocional",
+    subtitle = "Análisis de cuatro obras de Rubén Darío",
+    x = "Palabras identificadas",
+    y = "Frecuencia × puntuación AFINN",
+    fill = "Polaridad",
+    caption = "Fuente: elaboración propia a partir del corpus literario y AFINN adaptado al español."
+  ) +
+  theme_minimal(base_size = 12) +
+  theme(
+    plot.title = element_text(face = "bold"),
+    legend.position = "bottom",
+    strip.text = element_text(face = "bold")
+  )
+```
+
+# Revisión metodológica de términos con posible ambigüedad emocional
+
+Con el propósito de fortalecer la validez del análisis, se revisan algunas palabras cuya puntuación en el diccionario AFINN podría no reflejar adecuadamente su significado dentro del contexto literario.
+
+Esta revisión permite identificar términos gramaticales y expresiones que requieren una interpretación contextual antes de establecer conclusiones sobre la polaridad emocional de las obras.
+
+```{r revision-terminos}
+
+# Revisar términos que requieren interpretación contextual
+palabras_revision <- palabras_emocionales %>%
+  filter(
+    palabra %in% c(
+      "no", "tiempo", "sin", "nunca", "nada"
+    )
+  ) %>%
+  arrange(obra, palabra)
+
+# Mostrar resultados
+print(palabras_revision, n = Inf)
+```
+
+# Evolución de los sentimientos en bloques de 100 palabras
+
+Para identificar cómo cambia la carga emocional a lo largo de
+las cuatro obras de Rubén Darío, se dividieron los textos en
+bloques consecutivos de 100 palabras.
+
+A cada bloque se le asignó una puntuación mediante el
+diccionario AFINN adaptado al español. Las palabras sin
+coincidencia en el diccionario no aportaron puntuación.
+
+Este procedimiento permite observar variaciones positivas
+y negativas a lo largo de los textos y comparar sus
+trayectorias emocionales.
+
+```{r evolucion-sentimientos}
+# Crear bloques de 100 palabras por obra
+bloques_100 <- corpus_tokens %>%
+  group_by(obra) %>%
+  mutate(
+    posicion = row_number(),
+    bloque = ceiling(posicion / 100)
+  ) %>%
+  ungroup()
+
+# Relacionar cada palabra con AFINN
+evolucion_sentimientos <- bloques_100 %>%
+  left_join(afinn_es, by = "palabra") %>%
+  mutate(
+    puntuacion = coalesce(puntuacion, 0)
+  ) %>%
+  group_by(obra, bloque) %>%
+  summarise(
+    puntuacion_bloque = sum(puntuacion),
+    palabras_bloque = n(),
+    .groups = "drop"
+  )
+
+# Revisar los primeros resultados
+print(head(evolucion_sentimientos, 12))
+```
+
+```{r grafica-evolucion, fig.width=12, fig.height=8}
+
+ggplot(
+  evolucion_sentimientos,
+  aes(x = bloque, y = puntuacion_bloque)
+) +
+  geom_line(color = "#2878B5", linewidth = 0.6) +
+  geom_hline(
+    yintercept = 0,
+    linetype = "dashed",
+    color = "gray50"
+  ) +
+  facet_wrap(~ obra, scales = "free_x", ncol = 2) +
+  labs(
+    title = "Evolución de los sentimientos en Rubén Darío",
+    subtitle = "Puntuación AFINN por bloques de 100 palabras",
+    x = "Bloque de 100 palabras",
+    y = "Puntuación de sentimiento",
+    caption = "Fuente: elaboración propia con AFINN adaptado al español."
+  ) +
+  theme_minimal(base_size = 12) +
+  theme(
+    plot.title = element_text(face = "bold"),
+    strip.text = element_text(face = "bold")
+  )
+```
+
+```{r bloques-extremos}
+
+# Identificar los bloques más positivos y negativos
+extremos_sentimientos <- evolucion_sentimientos %>%
+  group_by(obra) %>%
+  summarise(
+    bloque_mas_positivo = bloque[which.max(puntuacion_bloque)],
+    puntuacion_maxima = max(puntuacion_bloque),
+    bloque_mas_negativo = bloque[which.min(puntuacion_bloque)],
+    puntuacion_minima = min(puntuacion_bloque),
+    .groups = "drop"
+  )
+
+# Mostrar resultados completos
+print(extremos_sentimientos, width = Inf)
+```
+
+# Interpretación comparativa de resultados
+
+El análisis de sentimientos aplicado a cuatro obras de Rubén Darío permitió identificar variaciones en la polaridad emocional a lo largo de los textos. Mediante la división del corpus en bloques de 100 palabras y la aplicación del diccionario AFINN adaptado al español, se observaron fluctuaciones entre puntuaciones positivas y negativas.
+
+En *Cantos de vida y esperanza*, el bloque 116 registró la puntuación positiva más alta (+19), mientras que el bloque 102 presentó la puntuación negativa más baja (-13). Estos resultados muestran cambios en el vocabulario emocional identificado a lo largo de la obra.
+
+En *Los raros* se encontró el descenso más pronunciado de las cuatro obras, con una puntuación de -24 en el bloque 443. Su puntuación positiva máxima fue de +17 en el bloque 372. Esta diferencia evidencia contrastes importantes entre los segmentos analizados.
+
+Por su parte, *Peregrinaciones* registró una puntuación máxima de +18 en el bloque 83 y una mínima de -18 en el bloque 279, mientras que *Prosas profanas* alcanzó la puntuación positiva más alta del conjunto (+20) en el bloque 20 y una mínima de -15 en el bloque 67.
+
+En conjunto, los resultados permiten observar que las cuatro obras presentan variaciones en el vocabulario asociado con sentimientos positivos y negativos. Sin embargo, las puntuaciones obtenidas deben interpretarse con cautela, debido a que el análisis automatizado no siempre reconoce el contexto, la ironía o los recursos expresivos propios de la literatura.
+
+# Conclusiones y reflexión personal
+
+Esta actividad fue una experiencia muy interesante para mí, especialmente porque apenas estoy comenzando a familiarizarme con RStudio y con las herramientas de análisis de datos. Al principio, trabajar con códigos, comandos y tantos resultados me parecía un poco complicado, pero conforme fui avanzando pude comprender mejor cómo funciona el proceso y qué podemos descubrir a partir de él.
+
+Algo que me llamó mucho la atención fue poder analizar cuatro obras de Rubén Darío desde una perspectiva diferente. Nunca había pensado que fuera posible utilizar herramientas digitales para identificar palabras relacionadas con sentimientos positivos y negativos, y mucho menos observar cómo cambian a lo largo de una obra literaria.
+
+También me pareció interesante descubrir que los resultados no siempre son tan sencillos de interpretar. Aunque el programa puede identificar palabras y asignarles puntuaciones, eso no significa que comprenda completamente lo que el autor quiere expresar. Creo que ahí es donde nuestra interpretación como lectores sigue siendo muy importante.
+
+Me quedo con la idea de que las Humanidades Digitales nos permiten acercarnos a la literatura desde otras perspectivas, combinando la tecnología con el análisis y la reflexión. Todavía tengo mucho que aprender sobre estas herramientas, pero esta práctica me ayudó a perderles un poco el miedo y a descubrir nuevas posibilidades para estudiar textos que, de otra manera, probablemente habría analizado únicamente a través de la lectura tradicional.
+
